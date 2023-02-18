@@ -1,5 +1,6 @@
 /** source/controllers/posts.ts */
 import { Request, Response, NextFunction } from 'express';
+import userModel from "../Models/user";
 import axios, { AxiosResponse } from 'axios';
 
 interface Post {
@@ -9,15 +10,30 @@ interface Post {
     body: String;
 }
 
-// getting all posts
-const getPosts = async (req: Request, res: Response, next: NextFunction) => {
-    // get some posts
-    let result: AxiosResponse = await axios.get(`https://jsonplaceholder.typicode.com/posts`);
-    let posts: [Post] = result.data;
-    return res.status(200).json({
-        message: posts
-    });
-};
+const signup = async (req: Request, res: Response) => {
+    const { username, email, password } = req.body;
+  
+    try {
+      const existinguser = await userModel.findOne({ email: email });
+      if (existinguser) {
+        return res.status(400).json({ message: "User already exists" });
+      } 
+      const hashpassword = await bcrypt.hash(password, 10);
+  
+      const result = await userModel.create({
+        email: email,
+        password: hashpassword,
+        username: username,
+      });
+  
+      const token = jwt.sign({ email: result.email, id: result._id }, SECRET_KEY);
+      res.status(201).json({ user: result, token: token });
+    } catch (error) {
+      console.log(error);
+      res.status(501).json({ message: "something went wrong" });
+    }
+    // res.send("signup")
+  };
 
 // getting a single post
 const getPost = async (req: Request, res: Response, next: NextFunction) => {
