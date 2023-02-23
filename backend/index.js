@@ -14,7 +14,7 @@ app.use("/contract", contractRouter);
 
 mongoose
   .connect(
-    "mongodb+srv://luckyyadav8627:cJ3eiyw5Jl8dBBw2@cluster0.8jmy2ez.mongodb.net/?retryWrites=true&w=majority"
+    "mongodb+srv://luckyyadav8627:NfWCnHm4bEQX6zKT@cluster0.8jmy2ez.mongodb.net/?retryWrites=true&w=majority"
   )
   .then(() => {
     console.log("handshake successful");

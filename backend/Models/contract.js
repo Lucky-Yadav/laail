@@ -6,11 +6,11 @@ const contractSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    Lender_Id: {
+    Lender: {
       type: String,
       required: true,
     },
-    Borrower_Id: {
+    Borrower: {
       type: String,
     },
     Principle: {
