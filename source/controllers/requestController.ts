@@ -35,17 +35,20 @@ const getlistbytype = async (type: string, res: Response) => {
   }
 };
 
-const filterbyn = async (n: string, res: Response) => {
+const filterbyn = async (n: number, res: Response) => {
   try {
-    let lenders = await lenderModel.find({});
-    let Lenders_Principle: any[] = [];
+    const lenders = await lenderModel.find({});
+    const Lenders_Principle: { lendername: string; principle: number }[] = [];
     lenders.forEach((lender) => {
       let principle = 0;
-      lender.borrower.forEach((borrower: any) => {
-        principle += borrower.principle;
-      });
-      let combine = `lendername: ${lender.lendername} and Principle ${principle}`;
-      Lenders_Principle.push(combine);
+      const borrowerCount = lender.borrower.length;
+      if (borrowerCount >= n) {
+        lender.borrower.forEach((borrower: any) => {
+          principle += borrower.principle;
+        });
+        const lenderInfo = { lendername: lender.lendername, principle };
+        Lenders_Principle.push(lenderInfo);
+      }
     });
 
     return res.status(200).json({ Lenders_Principle });
@@ -59,7 +62,7 @@ const List = async (req: Request, res: Response) => {
   try {
     req.params = params(req);
     const type = req.params.type;
-    const n = req.params.n;
+    const n = parseInt(req.params.n);
 
     if (type !== undefined) {
       await getlistbytype(type, res);

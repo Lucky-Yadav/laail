@@ -31,33 +31,44 @@ const getlistbytype = async (type, res) => {
 };
 const filterbyn = async (n, res) => {
   console.log(n);
-  // let lendersa = await lenderModel.aggregate([
-  //   { $project: { count: { $gt: [{ $size: "$borrower" }, n] } } },
-  // ]);
-  let lenders = await lenderModel.find({});
-  let Lenders_Principle = [];
+  let lenders = await contractModel.aggregate([
+    {
+      $group: {
+        _id: "$Lender",
+        count: { $sum: 1 },
+        principle: { $sum: "$Principle" },
+      },
+    },
+    {
+      $match: {
+        count: { $gte: n },
+      },
+    },
+    {
+      $sort: {
+        principle: 1,
+      },
+    },
+    {
+      $limit: n,
+    },
+  ]);
+  let output = [];
   lenders.forEach((lender) => {
-    let principle = 0;
-    lender.borrower.forEach((borrower) => {
-      principle += borrower.principle;
-    });
-    // LenderName = lender.lendername;
-    let combine = `lendername: ${lender.lendername} and Principle ${principle}`;
-    Lenders_Principle.push(combine);
+    console.log(lender._id);
+    output.push(`LenderName: ${lender._id}, Total: ${lender.principle}`);
   });
-  console.log(`Total principle: ${Lenders_Principle}`);
-
-  return res.status(200).json({ Lenders_Principle });
+  return res.status(200).json({ output });
 };
 const List = async (req, res) => {
   try {
     req.params = params(req);
     // console.log(req.params);
     const type = req.params.type;
-    const n = req.params.n;
+    const n = parseInt(req.params.n);
     // console.log(type, n);
 
-    if (type !== true) {
+    if (type !== undefined) {
       console.log("type", type);
       await getlistbytype(type, res);
     } else if (n !== undefined) {

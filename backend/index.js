@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const PORT = 3070;
+const PORT = 3071;
 const cors = require("cors");
 var jwt = require("jsonwebtoken");
 const userRouter = require("./routes/userRoutes");
