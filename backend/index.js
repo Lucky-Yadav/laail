@@ -6,11 +6,13 @@ var jwt = require("jsonwebtoken");
 const userRouter = require("./routes/userRoutes");
 const contractRouter = require("./routes/contractRoute");
 const mongoose = require("mongoose");
+const listRouter = require("./routes/getRoutes");
 
 app.use(express.json());
 app.use(cors());
 app.use("/users", userRouter);
 app.use("/contract", contractRouter);
+app.use("/lists", listRouter);
 
 mongoose
   .connect(

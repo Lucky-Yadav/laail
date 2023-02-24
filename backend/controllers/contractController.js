@@ -3,7 +3,6 @@ const lenderModel = require("../Models/lender");
 const borrowerModel = require("../Models/borrower");
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = "Secret_key";
-const mongoose = require("mongoose");
 
 const addcontract = async (req, res) => {
   const {
@@ -95,47 +94,7 @@ const addcontract = async (req, res) => {
     res.status(501).json({ message: "!Invalid Details" });
   }
 };
-var params = function (req) {
-  let q = req.url.split("?"),
-    result = {};
-  if (q.length >= 2) {
-    q[1].split("&").forEach((item) => {
-      try {
-        result[item.split("=")[0]] = item.split("=")[1];
-      } catch (e) {
-        result[item.split("=")[0]] = "";
-      }
-    });
-  }
-  return result;
-};
-const List = async (req, res) => {
-  try {
-    req.params = params(req);
-    console.log(req.params);
-    const type = req.params.type;
-    const contractlist = await contractModel.find({});
-    let lenders = [];
-    let borrowers = [];
-    let principle = [];
-    for (let i = 0; i < contractlist.length; i++) {
-      lenders.push(contractlist[i]["Lender_Id"]);
-      borrowers.push(contractlist[i]["Borrowername"]);
-      principle.push(contractlist[i]["Principle"]);
-    }
-    // const contractlistbytype = await contractModel.find({ "Lender_Id" });
-    console.log(lenders);
-    return res.send({
-      lenders,
-      borrowers,
-      principle,
-      // contractlistbytype,
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.send("internal error ");
-  }
-};
+
 
 const createLender = async (req, res) => {
   const { lendername } = req.body;
@@ -182,4 +141,4 @@ const createBorrower = async (req, res) => {
   }
 };
 
-module.exports = { addcontract, List, createLender, createBorrower };
+module.exports = { addcontract,  createLender, createBorrower };

@@ -1,15 +1,13 @@
 const express = require("express");
 const {
   addcontract,
-  List,
   createLender,
   createBorrower,
 } = require("../controllers/contractController.js");
-const userRouter = express.Router();
+const contractRouter = express.Router();
 
-userRouter.post("/register", addcontract);
-userRouter.get("/register", List);
-userRouter.post("/registerlender", createLender);
-userRouter.post("/registerborrower", createBorrower);
+contractRouter.post("/register", addcontract);
+contractRouter.post("/registerlender", createLender);
+contractRouter.post("/registerborrower", createBorrower);
 
-module.exports = userRouter;
+module.exports = contractRouter;

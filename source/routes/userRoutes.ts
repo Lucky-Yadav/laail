@@ -1,6 +1,6 @@
 /** source/routes/posts.ts */
 import express from 'express';
-import controller from '../controllers/posts';
+import controller from '../controllers/contractController';
 const router = express.Router();
 
 router.post('/signup', controller.addPost);
