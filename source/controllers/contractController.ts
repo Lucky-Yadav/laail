@@ -90,7 +90,7 @@ const addcontract = async (req: Request, res: Response) => {
     );
     res
       .status(201)
-      .json({ user: result, token: token, updatedlender: updateLender });
+      .json({ Contract: result, token: token, updatedlender: updateLender });
   } catch (error) {
     console.log(error);
     res.status(501).json({ message: "!Invalid Details" });

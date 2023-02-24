@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import userRouter from "./routes/userRoutes";
 import contractRouter from "./routes/contractRoute";

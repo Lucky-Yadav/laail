@@ -1,9 +1,9 @@
 import express, { Router } from "express";
 import {
-addcontract,
-createLender,
-createBorrower,
-} from "../controllers/contractController.js";
+  addcontract,
+  createLender,
+  createBorrower,
+} from "../controllers/contractController";
 
 const contractRouter: Router = express.Router();
 

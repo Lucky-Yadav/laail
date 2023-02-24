@@ -30,7 +30,7 @@ const getlistbytype = async (type: string, res: Response) => {
     }
     return res.status(200).json({ list });
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -50,7 +50,7 @@ const filterbyn = async (n: string, res: Response) => {
 
     return res.status(200).json({ Lenders_Principle });
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -69,7 +69,7 @@ const List = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "please provide params" });
     }
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

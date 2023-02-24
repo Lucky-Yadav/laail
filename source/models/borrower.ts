@@ -1,37 +1,16 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Document, model, Schema } from "mongoose";
 
-export interface ILender extends Document {
-  name: string;
-  principle: number;
-}
+import mongoose from "mongoose";
 
-export interface IBorrower extends Document {
-  borrowername: string;
-  Lender: ILender[];
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const LenderSchema: Schema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  principle: {
-    type: Number,
-    required: true,
-  },
-});
-
-const BorrowerSchema: Schema = new Schema(
+const BorrowerSchema = new mongoose.Schema(
   {
     borrowername: {
       type: String,
       required: true,
     },
-    Lender: [LenderSchema],
+    Lender: [{ name: String, principle: Number }],
   },
   { timestamps: true }
 );
 
-export default mongoose.model<IBorrower>("Borrower", BorrowerSchema);
+export default mongoose.model("Borrower", BorrowerSchema);
