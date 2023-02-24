@@ -1,44 +1,30 @@
-/** source/server.ts */
-import http from 'http';
-import express, { Express } from 'express';
-import morgan from 'morgan';
-import routes from './routes/userRoutes';
+import express from "express";
+import cors from "cors";
+import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
+import userRouter from "./routes/userRoutes";
+import contractRouter from "./routes/contractRoute";
+import listRouter from "./routes/getRoutes";
 
-const router: Express = express();
+const app = express();
+const PORT: number = 3070;
 
-/** Logging */
-router.use(morgan('dev'));
-/** Parse the request */
-router.use(express.urlencoded({ extended: false }));
-/** Takes care of JSON data */
-router.use(express.json());
+app.use(express.json());
+app.use(cors());
+app.use("/users", userRouter);
+app.use("/contract", contractRouter);
+app.use("/lists", listRouter);
 
-/** RULES OF OUR API */
-router.use((req, res, next) => {
-    // set the CORS policy
-    res.header('Access-Control-Allow-Origin', '*');
-    // set the CORS headers
-    res.header('Access-Control-Allow-Headers', 'origin, X-Requested-With,Content-Type,Accept, Authorization');
-    // set the CORS method headers
-    if (req.method === 'OPTIONS') {
-        res.header('Access-Control-Allow-Methods', 'GET POST');
-        return res.status(200).json({});
-    }
-    next();
-});
-
-/** Routes */
-router.use('/', routes);
-
-/** Error handling */
-router.use((req, res, next) => {
-    const error = new Error('not found');
-    return res.status(404).json({
-        message: error.message
+mongoose
+  .connect(
+    "mongodb+srv://luckyyadav8627:NfWCnHm4bEQX6zKT@cluster0.8jmy2ez.mongodb.net/?retryWrites=true&w=majority"
+  )
+  .then(() => {
+    console.log("handshake successful");
+    app.listen(PORT, () => {
+      console.log(`server started at http://localhost:${PORT}`);
     });
-});
-
-/** Server */
-const httpServer = http.createServer(router);
-const PORT: any = process.env.PORT ?? 6060;
-httpServer.listen(PORT, () => console.log(`The server is running on port ${PORT}`));
+  })
+  .catch((err) => {
+    console.log(err);
+  });

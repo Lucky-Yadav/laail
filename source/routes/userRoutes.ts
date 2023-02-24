@@ -1,9 +1,8 @@
-/** source/routes/posts.ts */
-import express from 'express';
-import controller from '../controllers/contractController';
-const router = express.Router();
+import express from "express";
+import { signup, signin } from "../controllers/usercontroller";
+const userRouter = express.Router();
 
-router.post('/signup', controller.addPost);
-router.post('/signin', controller.addPost);
+userRouter.post("/signup", signup);
+userRouter.post("/signin", signin);
 
-export = router;
+export default userRouter;

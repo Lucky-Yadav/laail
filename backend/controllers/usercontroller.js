@@ -2,6 +2,7 @@ const userModel = require("../Models/user")
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const SECRET_KEY = "Secret_key"
+
 const signup = async (req, res) => {
     
     const { username, email, password } = req.body;
@@ -50,58 +51,7 @@ const signin = async (req, res) => {
         console.log(err)
     }
 };
-// const todos = [];
-// const todopost = (req, res) => {
-//     // const { taskname, status,tag } = req.body;
 
-//     try {
-//       const { todo } = req.body;
-//         const { task } = todo;
-        
-//       console.log(task);
-
-//       let count = 0;
-//       todos.forEach((todo) => {
-//         count = Math.max(count, todo.id);
-//       });
-
-//       let data = {
-//         id: count + 1,
-//         task,
-//         createdAt: new Date(),
-//       };
-//       todos.push(data);
-//       return res.send("todo added");
-        
-//     } catch (err) {
-//         console.log(err)
-//     }
-// };
-// const todoget = (req, res) => {
-//      try {
-//        return res.send({
-//          todos,
-//        });
-//      } catch (error) {
-//        console.error(error.message);
-//        res.send("internal error ");
-//      }
-// }
-// const tododelete = (req, res) => {
-//     const { id } = req.params;
-
-//     let index = null;
-//     todos.forEach((todo, i) => {
-//       if (todo.id == id) {
-//           index = i;
-//           todos.splice(index, 1);
-//         return res.send(`deleted ${index + 1} element`);
-//       } 
-//     });
-//     if (index == null) {
-//       return res.status(404).send("data doesn't exist");
-//     }
-// }
 
 
 module.exports = {signin,signup};

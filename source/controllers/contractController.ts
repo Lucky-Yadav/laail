@@ -1,96 +1,144 @@
-/** source/controllers/posts.ts */
-import { Request, Response, NextFunction } from 'express';
-import userModel from "../Models/user";
-import axios, { AxiosResponse } from 'axios';
+import { Request, Response } from "express";
+import contractModel from "../Models/contract";
+import lenderModel from "../Models/lender";
+import borrowerModel from "../Models/borrower";
+import jwt from "jsonwebtoken";
 
-interface Post {
-    userId: Number;
-    id: Number;
-    title: String;
-    body: String;
-}
+const SECRET_KEY = "Secret_key";
 
-const signup = async (req: Request, res: Response) => {
-    const { username, email, password } = req.body;
-  
-    try {
-      const existinguser = await userModel.findOne({ email: email });
-      if (existinguser) {
-        return res.status(400).json({ message: "User already exists" });
-      } 
-      const hashpassword = await bcrypt.hash(password, 10);
-  
-      const result = await userModel.create({
-        email: email,
-        password: hashpassword,
-        username: username,
+const addcontract = async (req: Request, res: Response) => {
+  const {
+    Id,
+    Lender,
+    Borrower,
+    Principle,
+    Interest,
+    LoanStartDate,
+    LoanDueDate,
+    IsRepaid,
+  } = req.body;
+
+  try {
+    const registeredcontract = await contractModel
+      .findOne({ Id: Id })
+      .catch((err: any) => {
+        console.log(err);
+        return err;
       });
-  
-      const token = jwt.sign({ email: result.email, id: result._id }, SECRET_KEY);
-      res.status(201).json({ user: result, token: token });
-    } catch (error) {
-      console.log(error);
-      res.status(501).json({ message: "something went wrong" });
+    const registeredlender = await lenderModel
+      .findOne({ lendername: Lender })
+      .catch((err: any) => {
+        console.log(err);
+        return err;
+      });
+    if (!registeredlender) {
+      return res.status(400).json({ message: "Lender not Found" });
     }
-    // res.send("signup")
-  };
+    const registeredborrower = await borrowerModel
+      .findOne({ borrowername: Borrower })
+      .catch((err: any) => {
+        console.log(err);
+        return err;
+      });
+    if (!registeredborrower) {
+      return res.status(400).json({ message: "borrower not Found" });
+    }
+    if (registeredcontract) {
+      return res.status(400).json({ message: "contract already created" });
+    }
 
-// getting a single post
-const getPost = async (req: Request, res: Response, next: NextFunction) => {
-    // get the post id from the req
-    let id: string = req.params.id;
-    // get the post
-    let result: AxiosResponse = await axios.get(`https://jsonplaceholder.typicode.com/posts/${id}`);
-    let post: Post = result.data;
-    return res.status(200).json({
-        message: post
+    const newBorrower = { name: Borrower, principle: Principle };
+    const updateLender = await lenderModel
+      .findOneAndUpdate(
+        { lendername: Lender },
+        { $push: { borrower: newBorrower } },
+        { new: true }
+      )
+      .catch((err: any) => {
+        console.log(err);
+        return err;
+      });
+    console.log(updateLender);
+
+    const newLender = { name: Borrower, principle: Principle };
+    const updateBorrower = await borrowerModel
+      .findOneAndUpdate(
+        { borrowername: Borrower },
+        { $push: { Lender: newLender } },
+        { new: true }
+      )
+      .catch((err: any) => {
+        console.log(err);
+        return err;
+      });
+    console.log(updateBorrower);
+
+    const result = await contractModel.create({
+      Id: Id,
+      Lender: Lender,
+      Borrower: Borrower,
+      Principle: Principle,
+      Interest: Interest,
+      LoanStartDate: LoanStartDate,
+      LoanDueDate: LoanDueDate,
+      IsRepaid: IsRepaid,
     });
+
+    const token = jwt.sign(
+      { email: result.Lender, id: result._id },
+      SECRET_KEY
+    );
+    res
+      .status(201)
+      .json({ user: result, token: token, updatedlender: updateLender });
+  } catch (error) {
+    console.log(error);
+    res.status(501).json({ message: "!Invalid Details" });
+  }
+};
+const createLender = async (req: any, res: any): Promise<void> => {
+  const { lendername }: { lendername: string } = req.body;
+  try {
+    const registeredLender = await lenderModel
+      .findOne({ lendername: lendername })
+      .catch((err: Error) => {
+        console.log(err);
+        return err;
+      });
+
+    if (registeredLender) {
+      return res.status(400).json({ message: "Lender already created" });
+    }
+    const result = await lenderModel.create({
+      lendername: lendername,
+    });
+    res.status(201).json({ lender: result });
+  } catch (error: any) {
+    console.error(error.message);
+    res.status(501).json({ message: "!Invalid Details" });
+  }
+};
+const createBorrower = async (req: any, res: any): Promise<void> => {
+  const { borrowername }: { borrowername: string } = req.body;
+  try {
+    const registeredborrower = await borrowerModel
+      .findOne({ borrowername: borrowername })
+      .catch((err: Error) => {
+        console.log(err);
+        return err;
+      });
+
+    if (registeredborrower) {
+      return res.status(400).json({ message: "borrower already created" });
+    }
+    const result = await borrowerModel.create({
+      borrowername: borrowername,
+    });
+    res.status(201).json({ lender: result });
+  } catch (error: any) {
+    console.error(error.message);
+    res.status(501).json({ message: "!Invalid Details" });
+  }
 };
 
-// updating a post
-const updatePost = async (req: Request, res: Response, next: NextFunction) => {
-    // get the post id from the req.params
-    let id: string = req.params.id;
-    // get the data from req.body
-    let title: string = req.body.title ?? null;
-    let body: string = req.body.body ?? null;
-    // update the post
-    let response: AxiosResponse = await axios.put(`https://jsonplaceholder.typicode.com/posts/${id}`, {
-        ...(title && { title }),
-        ...(body && { body })
-    });
-    // return response
-    return res.status(200).json({
-        message: response.data
-    });
-};
-
-// deleting a post
-const deletePost = async (req: Request, res: Response, next: NextFunction) => {
-    // get the post id from req.params
-    let id: string = req.params.id;
-    // delete the post
-    let response: AxiosResponse = await axios.delete(`https://jsonplaceholder.typicode.com/posts/${id}`);
-    // return response
-    return res.status(200).json({
-        message: 'post deleted successfully'
-    });
-};
-
-// adding a post
-const addPost = async (req: Request, res: Response, next: NextFunction) => {
-    // get the data from req.body
-    let title: string = req.body.title;
-    let body: string = req.body.body;
-    // add the post
-    let response: AxiosResponse = await axios.post(`https://jsonplaceholder.typicode.com/posts`, {
-        title,
-        body
-    });
-    // return response
-    return res.status(200).json({
-        message: response.data
-    });
-};
-
-export default { getPosts, getPost, updatePost, deletePost, addPost };
+export { addcontract, createLender, createBorrower };

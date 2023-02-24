@@ -1,16 +1,27 @@
-import { Schema, model, connect } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
-async function run() {
-  // 4. Connect to MongoDB
-  await connect('mongodb://127.0.0.1:27017/test');
-
-  const user = new User({
-    name: 'Bill',
-    email: 'bill@initech.com',
-    avatar: 'https://i.imgur.com/dM7Thhn.png'
-  });
-  await user.save();
-
-  console.log(user.email); // 'bill@initech.com'
+export interface IUser extends Document {
+  username: string;
+  email: string;
+  password: string;
 }
-module.exports = mongoose.model("User", UserSchema);
+
+const UserSchema: Schema = new Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model<IUser>("User", UserSchema);
