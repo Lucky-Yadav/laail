@@ -36,26 +36,33 @@ const getlistbytype = async (type: string, res: Response) => {
 };
 
 const filterbyn = async (n: number, res: Response) => {
-  try {
-    const lenders = await lenderModel.find({});
-    const Lenders_Principle: { lendername: string; principle: number }[] = [];
-    lenders.forEach((lender) => {
-      let principle = 0;
-      const borrowerCount = lender.borrower.length;
-      if (borrowerCount >= n) {
-        lender.borrower.forEach((borrower: any) => {
-          principle += borrower.principle;
-        });
-        const lenderInfo = { lendername: lender.lendername, principle };
-        Lenders_Principle.push(lenderInfo);
-      }
-    });
-
-    return res.status(200).json({ Lenders_Principle });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
+  let lenders = await contractModel.aggregate([
+    {
+      $group: {
+        _id: "$Lender",
+        count: { $sum: 1 },
+        principle: { $sum: "$Principle" },
+      },
+    },
+    {
+      $match: {
+        count: { $gte: n },
+      },
+    },
+    {
+      $sort: {
+        principle: 1,
+      },
+    },
+    // {
+    //   $limit: n,
+    // },
+  ]);
+  let output: string[] = [];
+  lenders.forEach((lender) => {
+    output.push(`LenderName: ${lender._id}, Total: ${lender.principle}`);
+  });
+  return res.status(200).json({ output });
 };
 
 const List = async (req: Request, res: Response) => {
