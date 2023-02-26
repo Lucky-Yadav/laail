@@ -6,7 +6,7 @@ import borrowerModel from "../Models/borrower";
 const params = (req: Request) => {
   let q = req.url.split("?"),
     result: any = {};
-  if (q.length >= 2) {
+  if (q.length >= 1) {
     q[1].split("&").forEach((item) => {
       try {
         result[item.split("=")[0]] = item.split("=")[1];
