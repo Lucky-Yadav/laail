@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv' 
+dotenv.config()
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -14,10 +16,9 @@ app.use("/users", userRouter);
 app.use("/contract", contractRouter);
 app.use("/lists", listRouter);
 
+
 mongoose
-  .connect(
-    "mongodb+srv://luckyyadav8627:NfWCnHm4bEQX6zKT@cluster0.8jmy2ez.mongodb.net/?retryWrites=true&w=majority"
-  )
+  .connect(`${process.env.SECRET_KEY}`)
   .then(() => {
     console.log("handshake successful");
     app.listen(PORT, () => {
