@@ -1,86 +1,58 @@
-import userModel from "../Models/user";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import { Request, Response } from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import  userModel  from '../Models/user';
 
-const SECRET_KEY = "Secret_key";
+const SECRET_KEY = 'your_secret_key_here';
 
-interface SignupRequest {
-  body: {
-    username: string;
-    email: string;
-    password: string;
-  };
-}
+export const signup = async (req: Request, res: Response) => {
+    const { username, email, password } = req.body;
+    console.log(req.body)
+    try {
+        const existingUser = await userModel.findOne({ email: email })
+        if (existingUser) {
+            return res.status(400).json({ message: "User already exists"})
+        }
+        const hashPassword = await bcrypt.hash(password, 10);
 
-interface SigninRequest {
-  body: {
-    email: string;
-    password: string;
-  };
-}
+        const result = await userModel.create({
+            email: email,
+            password: hashPassword,
+            username:username
+        })
 
-interface User {
-  email: string;
-  password: string;
-  username: string;
-  _id: string;
-}
-
-interface TokenPayload {
-  email: string;
-  id: string;
-}
-
-const signup = async (req: SignupRequest, res: any) => {
-  const { username, email, password } = req.body;
-
-  try {
-    const existinguser = await userModel.findOne({ email: email });
-    if (existinguser) {
-      return res.status(400).json({ message: "User already exists" });
+        const token = jwt.sign({ email: result.email, id: result._id }, SECRET_KEY);
+        res.status(201).json({user : result, token : token})
+    } catch (error) {
+        console.log(error);
+        res.status(501).json({message : "something went wrong"})
     }
-    const hashpassword = await bcrypt.hash(password, 10);
-
-    const result = await userModel.create({
-      email: email,
-      password: hashpassword,
-      username: username,
-    });
-
-    const token = jwt.sign(
-      { email: result.email, id: result._id } as TokenPayload,
-      SECRET_KEY
-    );
-    res.status(201).json({ user: result, token: token });
-  } catch (error) {
-    console.log(error);
-    res.status(501).json({ message: "something went wrong" });
-  }
+    // res.send("signup")
 };
 
-const signin = async (req: SigninRequest, res: any) => {
-  const { email, password } = req.body;
+export const signin = async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+    console.log(req.body)
 
-  try {
-    const existinguser = await userModel.findOne({ email: email });
-    if (!existinguser) {
-      return res.status(400).json({ message: "User not found" });
+    try {
+        const existingUser = await userModel.findOne({ email: email });
+        if (!existingUser) {
+            return res.status(400).json({ message : "User not found"})
+        }
+        const matchPassword = await bcrypt.compare(password, existingUser.password)
+        if (!matchPassword) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+        const token = jwt.sign(
+          { email: existingUser.email, id: existingUser._id },
+          SECRET_KEY
+        );
+        res.status(201).json({ user: existingUser, token: token });
+        
+    } catch (error) {
+        console.log(error)
     }
-    const matchpassword = await bcrypt.compare(
-      password,
-      existinguser.password
-    );
-    if (!matchpassword) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-    const token = jwt.sign(
-      { email: existinguser.email, id: existinguser._id } as TokenPayload,
-      SECRET_KEY
-    );
-    res.status(201).json({ user: existinguser, token: token });
-  } catch (err) {
-    console.log(err);
-  }
 };
 
-export { signin, signup };
+
+

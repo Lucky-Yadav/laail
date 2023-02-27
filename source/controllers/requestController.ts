@@ -66,6 +66,7 @@ const filterbyn = async (n: number, res: Response) => {
 };
 
 const List = async (req: Request, res: Response) => {
+  console.log(req.body)
   try {
     req.params = params(req);
     const type = req.params.type;

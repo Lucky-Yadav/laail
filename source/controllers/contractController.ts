@@ -7,6 +7,8 @@ import jwt from "jsonwebtoken";
 const SECRET_KEY = "Secret_key";
 
 const addcontract = async (req: Request, res: Response) => {
+  console.log(req.body);
+
   const {
     Id,
     Lender,
@@ -98,6 +100,7 @@ const addcontract = async (req: Request, res: Response) => {
 };
 const createLender = async (req: any, res: any): Promise<void> => {
   const { lendername }: { lendername: string } = req.body;
+  console.log(req.body);
   try {
     const registeredLender = await lenderModel
       .findOne({ lendername: lendername })
